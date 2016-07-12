@@ -26,7 +26,8 @@ function loadCookies(page, url) {
 function cacheCookies(page, url) {
     var host = getHostByUrl(url);
     var cookies = JSON.stringify(page.cookies);
-    fs.write(pageParams.rootDir + "\\cookies\\" + host + ".js", cookies, 'a+');
+    var path = pageParams.rootDir + "\\cookies\\" + host + ".js";
+    fs.write(path, cookies, 'w');
 }
 
 /*根据url获取Host*/
@@ -49,7 +50,6 @@ function doResult(result) {
     console.log("<`R>" + result + "</~R>");
 }
 
-
 /*数据抓取*/
 function grab(args) {
     var result = {
@@ -57,8 +57,8 @@ function grab(args) {
         productName: $.trim($(".fontYaHei").html()),//商品名称
         startingPrice: $.trim($(".after-price em").html()),//起价
         departure: "",//出发城市
-        arrivalCity: "",//目的地国家
-        arrivalCountry: "",//目的地城市
+        arrivalCity: "",//目的地城市
+        arrivalCountry: "",//目的地国家
         supplier: "",//供应商
         pv: $.trim($(".gallery-bottom p:first span").html()),//访问量
         soldCount: $.trim($(".gallery-bottom p:eq(1) span").html()),//已售数量
@@ -78,8 +78,7 @@ function grab(args) {
     var lastDH = result.arrivalCity.lastIndexOf(",");
     result.arrivalCountry = result.arrivalCity.substr(lastDH + 1);
     result.arrivalCity = result.arrivalCity.substr(0, lastDH);
-    //供应商
-    result.supplier = $.trim($(contents[3]).find("a").html());
+    result.supplier = $.trim($(".sj-top-wrap .sj-top .text-box p").html());
     return result;
 }
 
@@ -92,7 +91,7 @@ function open() {
             phantom.exit();
             return;
         }
-        cacheCookies(page, pageParams.url);
+        //cacheCookies(page, pageParams.url);
         if (pageParams.isDebug) {
             var title = page.evaluate(function () {
                 return lid;
@@ -109,18 +108,25 @@ function open() {
 function init() {
     //解析页面输入参数
     pageParams = JSON.parse(system.stdin.readLine());
+    //不加载图片
+    page.settings.loadImages = false;
+    //超时时间 5000ms
+    page.settings.resourceTimeout = 5000;
+    //加载错误事件
+    phantom.onError = function (msg, trace) {
+        console.error(msg, trace);
+        phantom.exit(1);
+    }
     /*测试环境下输出页面控制台log*/
     if (pageParams.isDebug) {
         page.onConsoleMessage = function (msg) {
             console.log('PCL:', msg);
         };
     }
-    phantom.onError = function (msg, trace) {
-        console.error(msg, trace);
-    }
-    loadCookies(page, pageParams.url);
+    //loadCookies(page, pageParams.url);
     open();
 }
+
 
 //初始化
 init();

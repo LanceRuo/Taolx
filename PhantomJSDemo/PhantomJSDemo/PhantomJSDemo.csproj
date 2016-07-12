@@ -50,8 +50,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common.cs" />
+    <Compile Include="EnumerableExtension.cs" />
+    <Compile Include="EnumExtension.cs" />
+    <Compile Include="Crawl\Mafengwo.cs" />
+    <Compile Include="Models\Deal.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Crawl\Qyer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -65,16 +71,28 @@
     <Content Include="JavaScript1.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="JavaScripts\Crawl\mafengwo\Activity.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="JavaScripts\Crawl\mafengwo\Deal.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="JavaScripts\Crawl\mafengwo\Home.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="JavaScripts\Crawl\mafengwo\SalesList.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="JavaScripts\Crawl\qyer\Activity.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="JavaScripts\Crawl\qyer\Deal.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="JavaScripts\Libs\jquery-1.11.3.min.js">
+    <Content Include="JavaScripts\Crawl\qyer\Home.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="phantomjs-license.txt">
+    <Content Include="JavaScripts\Libs\jquery-1.11.3.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

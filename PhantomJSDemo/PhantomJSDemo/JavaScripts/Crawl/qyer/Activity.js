@@ -8,6 +8,7 @@ var pageParams = {
     url: ""
 };
 
+
 /*加载cookies*/
 function loadCookies(page, url) {
     var host = getHostByUrl(url);
@@ -25,7 +26,7 @@ function loadCookies(page, url) {
 function cacheCookies(page, url) {
     var host = getHostByUrl(url);
     var cookies = JSON.stringify(page.cookies);
-    var path = pageParams.rootDir + "\\cookies\\" + host + ".js";
+    var path=pageParams.rootDir + "\\cookies\\" + host + ".js";
     fs.write(path, cookies, 'w');
 }
 
@@ -50,28 +51,12 @@ function doResult(result) {
 }
 
 /*数据抓取*/
-function grab(args) {
-    var result = {
-        productId: $.trim(_SALES_INFO_GLOBAL_.sales_id),//商品Id
-        productName: $.trim(_SALES_INFO_GLOBAL_.sales_name),//商品名称
-        startingPrice: $.trim(_SALES_INFO_GLOBAL_.price),//起价
-        departure: "",//出发城市
-        arrivalCity: "",//目的地城市
-        arrivalCountry: "",//目的地国家
-        supplier: $.trim($(".ota-link a").attr("title")),//供应商
-        pv: $.trim($(".see em").html()),//访问量
-        soldCount: $.trim($(".see em:eq(1)").html()),//已售数量
-        air: $.trim($(".flight-info tbody:first tr:first td:eq(1)").html()),//航司
-        collect: $.trim($(".num_fav_total").html())//收藏次数
-    };
-    var contents = $("#target_goods_info").next().next().text();
-    var temp1 = contents.substr(contents.indexOf("出发地：") + 4);
-    var temp2 = temp1.substr(0, temp1.indexOf("目的地："));
-    result.departure = $.trim(temp2);
-    var temp3 = temp1.substr(temp1.indexOf("目的地：") + 4);
-    var temp4 = temp3.substr(0, temp3.indexOf("预订时间："));
-    result.arrivalCity = temp4;
-    return result;
+function grab(args) { 
+    var links = [];
+    $(".content-list li a").each(function () {
+        links.push(this.href);
+    });
+    return links; 
 }
 
 /*请求页面*/
@@ -86,7 +71,7 @@ function open() {
         //cacheCookies(page, pageParams.url);
         if (pageParams.isDebug) {
             var title = page.evaluate(function () {
-                return _SALES_INFO_GLOBAL_.sales_id;
+                return lid;
             });
             page.render(title + ".jpg");
         }
