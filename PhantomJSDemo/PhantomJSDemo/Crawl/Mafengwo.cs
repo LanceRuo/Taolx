@@ -37,7 +37,7 @@ namespace PhantomJSDemo
         /// Home首页 http://www.mafengwo.cn/sales/
         /// </summary> 
         /// <returns></returns>
-        public List<string> CrawlHome(int timeout = 30000)
+        public List<string> CrawlHome(int timeout = 60000)
         {
             var url = "http://www.mafengwo.cn/sales/";
             PhantomJS phantomJSActivity = new PhantomJS();
@@ -90,7 +90,7 @@ namespace PhantomJSDemo
             }
         }
 
-        public List<string> CrawlSalesList(int timeout = 180000) {
+        public List<string> CrawlSalesList(int timeout = 60000) {
             var url = "http://www.mafengwo.cn/sales/0-10099:10156--0-0-0-0-0.html";
             PhantomJS phantomJSSalesList = new PhantomJS();
             try
@@ -258,8 +258,7 @@ namespace PhantomJSDemo
                 phantomJS.Abort();
             }
         }
-
-      
+             
 
 #endregion
 

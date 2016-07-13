@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace PhantomJSDemo
 {
-  public static  class Common
+    public static class Common
     {
-        public readonly  static bool isDebug = true;
+        public readonly static bool isDebug = true;
 
         public readonly static string jquery = "http://static.taolx.com/common/js/jquery-1.9.0.min.js";
 
-        public readonly static string rootDir = AppDomain.CurrentDomain.BaseDirectory;
+        public readonly static string rootDir = AppDomain.CurrentDomain.RelativeSearchPath==null? AppDomain.CurrentDomain.BaseDirectory : AppDomain.CurrentDomain.RelativeSearchPath+"\\";
 
         /// <summary>
         /// 获得字符串中开始和结束字符串中间得值

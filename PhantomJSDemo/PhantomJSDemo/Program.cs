@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 
 namespace PhantomJSDemo
 {
-    class Program
+   public class Program
     {
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            KillProcess();
-            Console.WriteLine("Phantomjs killed, press any key and  go on....");
-            Console.ReadLine();
-            Console.WriteLine("Going......");
+            KillPhantomjsProcess();
+            //Console.WriteLine("Phantomjs killed, press any key and  go on....");
+           /// Console.ReadLine();
+           // Console.WriteLine("Going......");
             Action a = () =>
             {
                 Qyer qyer = new Qyer();
@@ -110,7 +110,7 @@ namespace PhantomJSDemo
             //act.BeginInvoke(null, null);
             //  for (var index = 0; index < 2; index++)
             //    act.BeginInvoke(null, null);             
-            Console.ReadLine();
+            //Console.ReadLine();
         }
 
         public static Action act = () =>
@@ -153,7 +153,7 @@ namespace PhantomJSDemo
             return rg.Match(str).Value;
         }
 
-        private static void KillProcess()
+        private static void KillPhantomjsProcess()
         {
 
             Process[] ps = Process.GetProcesses();
