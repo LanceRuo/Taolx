@@ -13,17 +13,18 @@ namespace PhantomJSDemo
 {
     class Program
     {
-         
+
         static void Main(string[] args)
         {
             KillProcess();
             Console.WriteLine("Phantomjs killed, press any key and  go on....");
             Console.ReadLine();
+            Console.WriteLine("Going......");
             Action a = () =>
-            { 
-                Qyer qyer = new Qyer(); 
+            {
+                Qyer qyer = new Qyer();
                 var homeLinks = qyer.CrawlHome();
-                Console.WriteLine("qyer.home.links.count:" + homeLinks.Count);  
+                Console.WriteLine("qyer.home.links.count:" + homeLinks.Count);
                 var groupHomeLinks = homeLinks.AvgGroup(2).ToList();
                 Action<int> homeDealAct = (index) =>
                 {
@@ -40,7 +41,7 @@ namespace PhantomJSDemo
                 };
                 for (var index = 0; index < 2; index++)
                     homeDealAct.BeginInvoke(index, null, null);
-               
+
                 var activityLinks = qyer.CrawlActivity("http://z.qyer.com/zt/yqdrb/");
                 var activityLinksAvgGroup = activityLinks.AvgGroup(2).ToList();
                 Action<int> activityDealAct = (index) =>
@@ -62,7 +63,8 @@ namespace PhantomJSDemo
             Action b = () =>
             {
                 Mafengwo mafengwo = new Mafengwo();
-                var homeLinks = mafengwo.CrawlHome();
+
+                var homeLinks = mafengwo.CrawlSalesList(); //mafengwo.CrawlHome();
                 Console.WriteLine("mafengwo.home.links.count:" + homeLinks.Count);
                 var homeLinksAvgGroup = homeLinks.AvgGroup(2).ToList();
                 Action<int> homeDealAct = (index) =>
@@ -79,7 +81,6 @@ namespace PhantomJSDemo
                 };
                 for (var index = 0; index < 2; index++)
                     homeDealAct.BeginInvoke(index, null, null);
-                return;
 
                 var activityLinks = mafengwo.CrawlActivity("http://www.mafengwo.cn/sales/activity/1000181.html");
                 var activityLinksAvgGroup = activityLinks.AvgGroup(2).ToList();
@@ -101,7 +102,7 @@ namespace PhantomJSDemo
 
 
             a.BeginInvoke(null, null);
-           // b.BeginInvoke(null, null);
+            //b.BeginInvoke(null, null);
 
 
             //act.BeginInvoke(null, null);
@@ -159,7 +160,7 @@ namespace PhantomJSDemo
             foreach (Process item in ps)
             {
                 Debug.WriteLine(item.ProcessName);
-                if (item.ProcessName.ToLower()== "phantomjs")
+                if (item.ProcessName.ToLower() == "phantomjs")
                 {
                     try
                     {

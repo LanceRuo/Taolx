@@ -31,7 +31,7 @@ namespace PhantomJSDemo
             }
         }
 
-        #region Crawl
+#region Crawl
 
         /// <summary>
         /// Home首页 http://www.mafengwo.cn/sales/
@@ -87,6 +87,58 @@ namespace PhantomJSDemo
             finally
             {
                 phantomJSActivity.Abort();
+            }
+        }
+
+        public List<string> CrawlSalesList(int timeout = 180000) {
+            var url = "http://www.mafengwo.cn/sales/0-10099:10156--0-0-0-0-0.html";
+            PhantomJS phantomJSSalesList = new PhantomJS();
+            try
+            {
+                phantomJSSalesList.OutputReceived += (sender, e) =>
+                {
+                    Console.WriteLine("PhantomJS output: {0}", e.Data);
+                };
+                var pageParams = new
+                {
+                    rootDir = Common.rootDir,
+                    isDebug = Common.isDebug,
+                    jquery = Common.jquery,
+                    url = url
+                };
+                var inputStr = JsonConvert.SerializeObject(pageParams);
+                var inputStream = new MemoryStream(Encoding.UTF8.GetBytes(inputStr + "\n"));
+                string resultJson = null;
+                Action doAct = () =>
+                {
+                    using (var ops = new MemoryStream())
+                    {
+                        phantomJSSalesList.RunScript(_jsFilsDic[JSFileType.SalesList], null, inputStream, ops);
+                        var str = Encoding.UTF8.GetString(ops.ToArray());
+                        resultJson = Common.GetValue(str, "<`R>", "</~R>");
+                        if (Common.isDebug)
+                            Console.WriteLine(str);
+                    }
+                };
+                doAct.BeginInvoke(null, null);
+                var time = 0;
+                while (time < timeout && resultJson == null)
+                {
+                    Thread.Sleep(100);
+                    time += 100;
+                }
+                if (string.IsNullOrEmpty(resultJson))
+                    return new List<string>();
+                return JsonConvert.DeserializeObject<List<string>>(resultJson);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new List<string>();
+            }
+            finally
+            {
+                phantomJSSalesList.Abort();
             }
         }
 
@@ -207,8 +259,9 @@ namespace PhantomJSDemo
             }
         }
 
+      
 
-        #endregion
+#endregion
 
 
         private enum JSFileType
@@ -219,6 +272,11 @@ namespace PhantomJSDemo
             [Description("JavaScripts\\Crawl\\mafengwo\\Home.js")]
             Home,
 
+            /// <summary>
+            /// 首页推荐
+            /// </summary>
+            [Description("JavaScripts\\Crawl\\mafengwo\\SalesList.js")]
+            SalesList,
 
             /// <summary>
             /// 活动专题

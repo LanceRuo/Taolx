@@ -9,7 +9,7 @@ namespace PhantomJSDemo
 {
   public static  class Common
     {
-        public readonly  static bool isDebug = false;
+        public readonly  static bool isDebug = true;
 
         public readonly static string jquery = "http://static.taolx.com/common/js/jquery-1.9.0.min.js";
 

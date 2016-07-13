@@ -8,12 +8,19 @@ var pageParams = {
     url: ""
 };
 
+/*保存屏幕截图*/
+function savePageScreen(name) {
+    if (!pageParams.isDebug) return;
+    page.render("PageScreen\\Mafengwo\\SalesList\\" + name);
+}
+
 /*加载cookies*/
 function loadCookies(page, url) {
     var host = getHostByUrl(url);
-    var path = pageParams.rootDir + "\\cookies\\" + host + ".js";
-    var file = fs.open(path, 'a+');
+    var path = pageParams.rootDir + "\\JavaScripts\\Cookies\\" + host + ".js";
+    var file = fs.open(path, 'r');
     var cookies = file.read();
+    console.log("cookies", cookies);
     if (cookies == "")
         return;
     cookies = JSON.parse(cookies);
@@ -25,7 +32,7 @@ function loadCookies(page, url) {
 function cacheCookies(page, url) {
     var host = getHostByUrl(url);
     var cookies = JSON.stringify(page.cookies);
-    var path = pageParams.rootDir + "\\cookies\\" + host + ".js";
+    var path = pageParams.rootDir + "\\JavaScripts\\Cookies\\" + host + ".js";
     fs.write(path, cookies, 'w');
 }
 
@@ -35,6 +42,7 @@ function getHostByUrl(url) {
         var t = url.substr(url.indexOf("//") + 2);
         if (t.indexOf("/"))
             t = t.substr(0, t.indexOf("/"));
+        t = t.replace("www.", "");
         return t.toLowerCase();
     } catch (e) {
         console.error(e);
@@ -49,11 +57,27 @@ function doResult(result) {
     console.log("<`R>" + result + "</~R>");
 }
 
+/*根据销量排序*/
+function sortSoldNum() {
+    $(".sort-item:eq(1)>a").click();
+}
+
+/*判断是否还有下一页数据*/
+function hasNext() {
+    var next = $(".pg-next");
+    if (next.length > 0) {
+        $(".list-wrap").html("");
+        next.click();
+        return true;
+    } else
+        return false;
+}
+
 /*数据抓取*/
 function grab(args) {
     // var hostUrl = "http://www.mafengwo.cn/sales/";
     var links = [];
-    $(".sales-cards li>a").each(function () {
+    $(".list-wrap>a").each(function () {
         links.push(this.href);
     });
     return links;
@@ -63,21 +87,36 @@ function grab(args) {
 function open() {
     /*加载页面*/
     page.open(pageParams.url, function (status) {
+        savePageScreen("init.jpg");
         if (status !== "success") {
             console.log('FAIL to load the address', url);
             phantom.exit();
             return;
         }
-        // cacheCookies(page, pageParams.url);
-        if (pageParams.isDebug) {
-            var title = page.evaluate(function () {
-                return document.title;
-            });
-            page.render(title + ".jpg");
-        }
-        var result = page.evaluate(grab);
-        doResult(result);
-        phantom.exit()
+        cacheCookies(page, pageParams.url);
+        var links = [];
+        //根据销量排序
+        page.evaluate(sortSoldNum);
+        savePageScreen("first.jpg");
+        setTimeout(function () {
+            var firstPageData = page.evaluate(grab);//每页20条数据,爬两页数据就够了
+            for (var index = 0; index < firstPageData.length; index++)
+                links.push(firstPageData[index]);
+            var isHasNext = page.evaluate(hasNext);
+            if (isHasNext) {
+                setTimeout(function () {
+                    savePageScreen("second.jpg");
+                    var secondPageData = page.evaluate(grab);
+                    for (var index = 0; index < secondPageData.length; index++)
+                        links.push(secondPageData[index]);
+                    doResult(links);
+                    phantom.exit();
+                }, 10000);
+            } else {
+                doResult(links);
+                phantom.exit();
+            }
+        }, 10000);
     });
 }
 
@@ -100,7 +139,7 @@ function init() {
             console.log('PCL:', msg);
         };
     }
-    //loadCookies(page, pageParams.url);
+    loadCookies(page, pageParams.url);
     open();
 }
 

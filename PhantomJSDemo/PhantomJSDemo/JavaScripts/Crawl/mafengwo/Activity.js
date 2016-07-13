@@ -8,10 +8,17 @@ var pageParams = {
     url: ""
 };
 
+/*保存屏幕截图*/
+function savePageScreen(name) {
+    if (!pageParams.isDebug) return;
+    var activityId = pageParams.url.substr(pageParams.url.lastIndexOf("/") + 1).replace(".html");
+    page.render("PageScreen\\Qyer\\Mafengwo\\" + activityId + "_" + name);
+}
+
 /*加载cookies*/
 function loadCookies(page, url) {
     var host = getHostByUrl(url);
-    var path = pageParams.rootDir + "\\cookies\\" + host + ".js";
+    var path = pageParams.rootDir + "\\JavaScripts\\Cookies\\" + host + ".js";
     var file = fs.open(path, 'a+');
     var cookies = file.read();
     if (cookies == "")
@@ -25,7 +32,7 @@ function loadCookies(page, url) {
 function cacheCookies(page, url) {
     var host = getHostByUrl(url);
     var cookies = JSON.stringify(page.cookies);
-    var path = pageParams.rootDir + "\\cookies\\" + host + ".js";
+    var path = pageParams.rootDir + "\\JavaScripts\\Cookies\\" + host + ".js";
     fs.write(path, cookies, 'w');
 }
 
@@ -35,6 +42,7 @@ function getHostByUrl(url) {
         var t = url.substr(url.indexOf("//") + 2);
         if (t.indexOf("/"))
             t = t.substr(0, t.indexOf("/"));
+        t = t.replace("www.", "");
         return t.toLowerCase();
     } catch (e) {
         console.error(e);
@@ -51,7 +59,7 @@ function doResult(result) {
 
 /*数据抓取*/
 function grab(args) {
-   // var hostUrl = "http://www.mafengwo.cn/";
+    // var hostUrl = "http://www.mafengwo.cn/";
     var links = [];
     $(".mod-deal li a").each(function () {
         links.push(this.href);
@@ -63,12 +71,13 @@ function grab(args) {
 function open() {
     /*加载页面*/
     page.open(pageParams.url, function (status) {
+        savePageScreen("init.jpg");
         if (status !== "success") {
             console.log('FAIL to load the address', url);
             phantom.exit();
             return;
         }
-       // cacheCookies(page, pageParams.url);
+        // cacheCookies(page, pageParams.url);
         if (pageParams.isDebug) {
             var title = page.evaluate(function () {
                 return document.title;
@@ -100,7 +109,7 @@ function init() {
             console.log('PCL:', msg);
         };
     }
-   //loadCookies(page, pageParams.url);
+    //loadCookies(page, pageParams.url);
     open();
 }
 
