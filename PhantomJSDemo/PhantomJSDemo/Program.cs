@@ -63,6 +63,33 @@ namespace PhantomJSDemo
             Action b = () =>
             {
                 Mafengwo mafengwo = new Mafengwo();
+                var activityLinks = mafengwo.CrawlActivity("http://www.mafengwo.cn/sales/activity/1000181.html");
+                var activityLinksAvgGroup = activityLinks.AvgGroup(2).ToList();
+                Action<int> activityDealAct = (index) =>
+                {
+                    activityLinksAvgGroup[index].ToList().ForEach((link) =>
+                    {
+                        Stopwatch dealStopWatch = new Stopwatch();
+                        dealStopWatch.Start();
+                        Console.WriteLine("mafengwo.deal.link:" + link);
+                        var res = mafengwo.CrawlDeal(link);
+                        Console.WriteLine(JsonConvert.SerializeObject(res));
+                        Console.WriteLine("mafengwo.deal.time:" + dealStopWatch.ElapsedMilliseconds);
+                    });
+                };
+                for (var index = 0; index < 2; index++)
+                    activityDealAct.BeginInvoke(index, null, null);
+
+                return;
+
+
+
+
+
+
+
+
+
 
                 var homeLinks = mafengwo.CrawlSalesList(); //mafengwo.CrawlHome();
                 Console.WriteLine("mafengwo.home.links.count:" + homeLinks.Count);
@@ -82,27 +109,12 @@ namespace PhantomJSDemo
                 for (var index = 0; index < 2; index++)
                     homeDealAct.BeginInvoke(index, null, null);
 
-                var activityLinks = mafengwo.CrawlActivity("http://www.mafengwo.cn/sales/activity/1000181.html");
-                var activityLinksAvgGroup = activityLinks.AvgGroup(2).ToList();
-                Action<int> activityDealAct = (index) =>
-                {
-                    activityLinksAvgGroup[index].ToList().ForEach((link) =>
-                    {
-                        Stopwatch dealStopWatch = new Stopwatch();
-                        dealStopWatch.Start();
-                        Console.WriteLine("mafengwo.deal.link:" + link);
-                        var res = mafengwo.CrawlDeal(link);
-                        Console.WriteLine(JsonConvert.SerializeObject(res));
-                        Console.WriteLine("mafengwo.deal.time:" + dealStopWatch.ElapsedMilliseconds);
-                    });
-                };
-                for (var index = 0; index < 2; index++)
-                    activityDealAct.BeginInvoke(index, null, null);
+               
             };
 
 
-            a.BeginInvoke(null, null);
-            //b.BeginInvoke(null, null);
+            //a.BeginInvoke(null, null);
+            b.BeginInvoke(null, null);
 
 
             //act.BeginInvoke(null, null);
@@ -110,7 +122,7 @@ namespace PhantomJSDemo
             //act.BeginInvoke(null, null);
             //  for (var index = 0; index < 2; index++)
             //    act.BeginInvoke(null, null);             
-            //Console.ReadLine();
+            Console.ReadLine();
         }
 
         public static Action act = () =>
