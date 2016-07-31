@@ -56,6 +56,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Qyer.cs" />
+    <Compile Include="QyerCrawlBll.cs" />
     <Compile Include="StringExtension.cs" />
   </ItemGroup>
   <ItemGroup>

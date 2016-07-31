@@ -15,7 +15,7 @@ namespace CsQueryDemo
 
         public static void Main(string[] args)
         {
-            Qyer qyer = new Qyer();
+            QyerCrawlBll qyer = new QyerCrawlBll();
             qyer.Start();
             Console.ReadLine();
         }

@@ -37,6 +37,13 @@ namespace CsQueryDemo
             return source.Text().ToTrim();
         }
 
+        public static string ExtHtml(this CQ source, string defaultVal = "")
+        {
+            if (source == null)
+                return defaultVal;
+            return source.Html().ToTrim();
+        }
+
         public static CQ ExtFind(this CQ source, string selector)
         {
             if (source == null)
