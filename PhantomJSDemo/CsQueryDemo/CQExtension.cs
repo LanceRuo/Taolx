@@ -19,7 +19,7 @@ namespace CsQueryDemo
                 HttpClient client = new HttpClient();
                 client.Timeout = new TimeSpan(0, 0, 30);
                 var response = client.GetAsync(url).Result;
-                var responseContent = response.Content.ReadAsStringAsync().Result; 
+                var responseContent = response.Content.ReadAsStringAsync().Result;
                 var cq = CQ.CreateDocument(responseContent);
                 return new Tuple<bool, CQ>(true, cq);
             }
@@ -70,5 +70,72 @@ namespace CsQueryDemo
             });
             return source;
         }
+
+        public static CQ ExtEach(this CQ source, Action<IDomObject> func, bool noThrowException = true)
+        {
+            if (func == null || source == null)
+                return source;
+            source.Each((e) =>
+            {
+                try
+                {
+                    func(e);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                    if (!noThrowException)
+                        throw ex;
+                }
+            });
+            return source;
+        }
+
+        /// <summary>
+        /// next
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static CQ ExtNext(this CQ source)
+        {
+            if (source == null) return null;
+            return source.Next();
+        }
+
+        public static string ExtAttr(this CQ source, string attName)
+        {
+            if (source == null) return string.Empty;
+            return source.Attr(attName).ToTrim();
+        }
+
+        public static string ExtAttrData(this CQ source, string name)
+        {
+            return source.ExtAttr(string.Format("data-{0}", name));
+        }
     }
+
+    public static class IDomObjectExtension
+    {
+        public static CQ ExtCq(this IDomObject idom)
+        {
+            if (idom == null)
+                return CQ.Create(string.Empty);
+            return CQ.Create(idom.OuterHTML);
+        }
+
+        public static string ExtInnerHTML(this IDomObject idom)
+        {
+            if (idom == null)
+                return string.Empty;
+            return idom.InnerHTML.ToTrim();
+        }
+
+        public static string ExtOuterHTML(this IDomObject idom)
+        {
+            if (idom == null)
+                return string.Empty;
+            return idom.OuterHTML.ToTrim();
+        }
+    }
+
 }

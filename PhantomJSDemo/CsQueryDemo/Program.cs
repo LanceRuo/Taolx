@@ -15,12 +15,17 @@ namespace CsQueryDemo
 
         public static void Main(string[] args)
         {
+            CtripFlightBll bll = new CtripFlightBll();
+            bll.Run();
+        }
+
+
+        public static void TestQyer() {
+
             QyerCrawlBll qyer = new QyerCrawlBll();
             qyer.Start();
             Console.ReadLine();
         }
-
-
 
         public static HomeData Home()
         {

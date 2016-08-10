@@ -1,0 +1,43 @@
+﻿@{            /*  var data=  {     "Title":"订单下位已成功",     "UserInfo":{"Id":1000.0,"Name":"张珊"},     "OrderInfo":{"OrderNo":"D562569565","PayAmount":1110.0},     "Flights":[{"Sequence":"Sequence1","Flight":"Flight1","DCity":"DCity1","ACity":"ACity1","TakeOffTime":"2016-08-03T13:50:41.4675203+08:00","ArrivalTime":"2016-08-03T13:50:41.4695199+08:00","SubClass":"SubClass1","TruePrice":100.0,"Tax":13.0,"Oilfee":2.3},         {"Sequence":"Sequence2","Flight":"Flight2","DCity":"DCity2","ACity":"ACity2","TakeOffTime":"2016-08-03T13:50:41.4695199+08:00","ArrivalTime":"2016-08-03T13:50:41.4695199+08:00","SubClass":"SubClass2","TruePrice":200.0,"Tax":23.0,"Oilfee":2.3},         {"Sequence":"Sequence3","Flight":"Flight3","DCity":"DCity3","ACity":"ACity3","TakeOffTime":"2016-08-03T13:50:41.4695199+08:00","ArrivalTime":"2016-08-03T13:50:41.4695199+08:00","SubClass":"SubClass3","TruePrice":300.0,"Tax":33.0,"Oilfee":3.3}     ] };    */
+    dynamic data = (dynamic)Model;
+}
+
+<h1>@data.Title -@data.OrderInfo.OrderNo</h1>
+<table cellpadding="0" cellspacing="0" style="border:1px solid #99CCFF;margin:10px auto;width:95%;font-size:12px;text-align:center;color:#666;line-height:18px;">
+    <tbody>         <tr>             <td>
+    <div style="clear:both;padding-left:6px;margin:10px auto;font-size:12px; text-align:left;">
+        <div>                         尊敬的                         <input hidden value="@data.UserInfo.Id" />                         @data.UserInfo.Name，很高兴通知您以下订位已经成功：                     </div>
+        <div>                         <strong>此订单仅做了订位，请尽快电话通知出票，以免舱位被航空公司取消。</strong>                     </div>
+        <div>
+            <img src="http://pic.ctrip.com/mail/mail_icon_01.gif" width="12" height="11" /> 订单号：    @data.OrderInfo.OrderNo
+            <a style="color:#015DF4" href="http://flights.ctrip.com/Domestic/ViewOrderDetail.aspx?OrderID=@(data.OrderInfo.OrderNo)" target="_blank">查看该订单</a>
+        </div>                     <br />
+    </div>
+</td>         </tr>     </tbody>
+</table>
+<table cellpadding="0" cellspacing="0" style="border:1px solid #99CCFF;margin:10px auto;width:95%;font-size:12px;text-align:center;color:#666;line-height:18px;">
+    <thead>         <tr style="height:28px;color:#000;">             <th style="border-bottom:1px dashed #B3E2FF;">航程</th>             <th style="border-bottom:1px dashed #B3E2FF;">航班号</th>             <th style="border-bottom:1px dashed #B3E2FF;">出发城市</th>             <th style="border-bottom:1px dashed #B3E2FF;">到达城市</th>             <th style="border-bottom:1px dashed #B3E2FF;">起飞时间</th>             <th style="border-bottom:1px dashed #B3E2FF;">到达时间</th>             <th style="border-bottom:1px dashed #B3E2FF;">舱位</th>             <th style="border-bottom:1px dashed #B3E2FF;">机票单价</th>             <th style="border-bottom:1px dashed #B3E2FF;">机建费</th>             <th style="border-bottom:1px dashed #B3E2FF;">燃油费</th>         </tr>     </thead>
+    <tbody>
+        @if (data.Flights != null)
+        {
+            foreach (dynamic flight in data.Flights)
+            {
+                <tr>
+                    <td style="border-bottom:1px dashed #B3E2FF;">                     @flight.Sequence                 </td>
+                    <td style="border-bottom:1px dashed #B3E2FF;">                     @flight.Flight                 </td>
+                    <td style="border-bottom:1px dashed #B3E2FF;">                     @flight.DCity                 </td>
+                    <td style="border-bottom:1px dashed #B3E2FF;">                     @flight.ACity                 </td>
+                    <td style="border-bottom:1px dashed #B3E2FF;">
+                        @flight.TakeOffTime
+                    </td>
+                    <td style="border-bottom:1px dashed #B3E2FF;">                     @flight.ArrivalTime                 </td>
+                    <td style="border-bottom:1px dashed #B3E2FF;">                     @flight.SubClass                 </td>
+                    <td style="border-bottom:1px dashed #B3E2FF;">                     @flight.TruePrice                 </td>
+                    <td style="border-bottom:1px dashed #B3E2FF;">                     @flight.Tax                 </td>
+                    <td style="border-bottom:1px dashed #B3E2FF;">                     @flight.Oilfee                 </td>
+                </tr>                 }
+        }
+    </tbody>
+</table> <div>
+    <h5>特别提示:本邮件由淘旅行系统自动发出,请勿回复! 谢谢！</h5>
+</div>

@@ -33,5 +33,17 @@ namespace CsQueryDemo
             decimal.TryParse(source, out defaultVal);
             return defaultVal;
         }
+
+        /// <summary>
+        /// HtmlDecode
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string HtmlDecode(this string source)
+        {
+            if (source.IsNullOrEmpty())
+                return string.Empty;
+            return System.Web.HttpUtility.HtmlDecode(source);
+        }
     }
 }
