@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B635C61E-1EEF-400D-AFE1-85A87BC4402B}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{5E9B778E-2D2C-45BF-9C48-6513D2B16AFB}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EntityDemo</RootNamespace>
-    <AssemblyName>EntityDemo</AssemblyName>
+    <RootNamespace>Taolx.Common.DataAccess</RootNamespace>
+    <AssemblyName>Taolx.Common.DataAccess</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -59,26 +57,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entities\BaseEntity.cs" />
-    <Compile Include="Entities\MerInfo.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="DatabaseType.cs" />
+    <Compile Include="TaolxDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TaolxDbContextDemo.cs" />
-    <Compile Include="TempDbContext.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <Compile Include="TaolxDbSet`.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntityFramework.Extended\EntityFramework.Extended.csproj">
       <Project>{d390c235-242c-4e92-9e0b-d2463e87b0f0}</Project>
       <Name>EntityFramework.Extended</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Taolx.Common.DataAccess\Taolx.Common.DataAccess.csproj">
-      <Project>{5e9b778e-2d2c-45bf-9c48-6513d2b16afb}</Project>
-      <Name>Taolx.Common.DataAccess</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

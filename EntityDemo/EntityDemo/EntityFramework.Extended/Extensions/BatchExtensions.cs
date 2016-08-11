@@ -27,14 +27,11 @@ namespace EntityFramework.Extensions
         /// any entities that have already been materialized in the current context.        
         /// </remarks>
         [Obsolete("The API was refactored to no longer need this extension method. Use query.Where(expression).Delete() syntax instead.")]
-        public static int Delete<TEntity>(
-           this IQueryable<TEntity> source,
-           IQueryable<TEntity> query)
+        public static int Delete<TEntity>(this IQueryable<TEntity> source, IQueryable<TEntity> query)
            where TEntity : class
         {
             return query.Delete();
         }
-
         /// <summary>
         /// Executes a delete statement using an expression to filter the rows to be deleted.
         /// </summary>
@@ -55,10 +52,7 @@ namespace EntityFramework.Extensions
         /// any entities that have already been materialized in the current context.        
         /// </remarks>
         [Obsolete("The API was refactored to no longer need this extension method. Use query.Where(expression).Delete() syntax instead.")]
-        public static int Delete<TEntity>(
-            this IQueryable<TEntity> source,
-            Expression<Func<TEntity, bool>> filterExpression)
-            where TEntity : class
+        public static int Delete<TEntity>(this IQueryable<TEntity> source, Expression<Func<TEntity, bool>> filterExpression) where TEntity : class
         {
             if (source == null)
                 throw new ArgumentNullException("source");
@@ -87,8 +81,7 @@ namespace EntityFramework.Extensions
         /// and is not part of the change tracking system.  Also, changes will not be reflected on 
         /// any entities that have already been materialized in the current context.        
         /// </remarks>
-        public static int Delete<TEntity>(this IQueryable<TEntity> source)
-            where TEntity : class
+        public static int Delete<TEntity>(this IQueryable<TEntity> source) where TEntity : class
         {
             ObjectQuery<TEntity> sourceQuery = source.ToObjectQuery();
             if (sourceQuery == null)
@@ -127,10 +120,7 @@ namespace EntityFramework.Extensions
         /// any entities that have already been materialized in the current context.        
         /// </remarks>
         [Obsolete("The API was refactored to no longer need this extension method. Use query.Where(expression).DeleteAsync() syntax instead.")]
-        public static Task<int> DeleteAsync<TEntity>(
-            this IQueryable<TEntity> source,
-            Expression<Func<TEntity, bool>> filterExpression)
-            where TEntity : class
+        public static Task<int> DeleteAsync<TEntity>(this IQueryable<TEntity> source, Expression<Func<TEntity, bool>> filterExpression) where TEntity : class
         {
             if (source == null)
                 throw new ArgumentNullException("source");
@@ -246,10 +236,7 @@ namespace EntityFramework.Extensions
         /// any entities that have already been materialized in the current context.        
         /// </remarks>
         [Obsolete("The API was refactored to no longer need this extension method. Use query.Where(expression).Update(updateExpression) syntax instead.")]
-        public static int Update<TEntity>(
-            this IQueryable<TEntity> source,
-            Expression<Func<TEntity, bool>> filterExpression,
-            Expression<Func<TEntity, TEntity>> updateExpression)
+        public static int Update<TEntity>(this IQueryable<TEntity> source, Expression<Func<TEntity, bool>> filterExpression, Expression<Func<TEntity, TEntity>> updateExpression)
             where TEntity : class
         {
             if (source == null)
@@ -281,9 +268,7 @@ namespace EntityFramework.Extensions
         /// and is not part of the change tracking system.  Also, changes will not be reflected on 
         /// any entities that have already been materialized in the current context.        
         /// </remarks>
-        public static int Update<TEntity>(
-            this IQueryable<TEntity> source,
-            Expression<Func<TEntity, TEntity>> updateExpression)
+        public static int Update<TEntity>(this IQueryable<TEntity> source, Expression<Func<TEntity, TEntity>> updateExpression)
             where TEntity : class
         {
             if (source == null)
@@ -306,7 +291,6 @@ namespace EntityFramework.Extensions
             var runner = ResolveRunner();
             return runner.Update(objectContext, entityMap, sourceQuery, updateExpression);
         }
-
 #if NET45
         /// <summary>
         /// Executes an update statement asynchronously using an expression to filter the rows that are updated.
@@ -331,10 +315,7 @@ namespace EntityFramework.Extensions
         /// any entities that have already been materialized in the current context.        
         /// </remarks>
         [Obsolete("The API was refactored to no longer need this extension method. Use query.Where(expression).UpdateAsync(updateExpression) syntax instead.")]
-        public static Task<int> UpdateAsync<TEntity>(
-            this IQueryable<TEntity> source,
-            Expression<Func<TEntity, bool>> filterExpression,
-            Expression<Func<TEntity, TEntity>> updateExpression)
+        public static Task<int> UpdateAsync<TEntity>(this IQueryable<TEntity> source, Expression<Func<TEntity, bool>> filterExpression, Expression<Func<TEntity, TEntity>> updateExpression)
             where TEntity : class
         {
             if (source == null)
@@ -366,9 +347,7 @@ namespace EntityFramework.Extensions
         /// and is not part of the change tracking system.  Also, changes will not be reflected on 
         /// any entities that have already been materialized in the current context.        
         /// </remarks>
-        public static Task<int> UpdateAsync<TEntity>(
-            this IQueryable<TEntity> source,
-            Expression<Func<TEntity, TEntity>> updateExpression)
+        public static Task<int> UpdateAsync<TEntity>(this IQueryable<TEntity> source, Expression<Func<TEntity, TEntity>> updateExpression)
             where TEntity : class
         {
             if (source == null)
@@ -391,7 +370,6 @@ namespace EntityFramework.Extensions
             var runner = ResolveRunner();
             return runner.UpdateAsync(objectContext, entityMap, sourceQuery, updateExpression);
         }
-
 #endif
 
         private static IBatchRunner ResolveRunner()
@@ -399,7 +377,6 @@ namespace EntityFramework.Extensions
             var provider = Locator.Current.Resolve<IBatchRunner>();
             if (provider == null)
                 throw new InvalidOperationException("Could not resolve the IBatchRunner. Make sure IBatchRunner is registered in the Locator.Current container.");
-
             return provider;
         }
     }
