@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.Entity;
 
 namespace Taolx.Common.DataAccess
 {
@@ -295,13 +296,13 @@ namespace Taolx.Common.DataAccess
             var qb = source1.InternalQueryable.Intersect(source2, comparer);
             return source1.Clone(qb);
         }
-
-
+        
         public static TaolxQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this TaolxQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
         {
             var qb = outer.InternalQueryable.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
             return outer.Clone(qb);
         }
+
         public static TaolxQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this TaolxQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
         {
             var qb = outer.InternalQueryable.Join(inner, outerKeySelector, innerKeySelector, resultSelector, comparer);
@@ -317,12 +318,12 @@ namespace Taolx.Common.DataAccess
         {
             return source.InternalQueryable.Last(predicate);
         }
-
-
+        
         public static TSource LastOrDefault<TSource>(this TaolxQueryable<TSource> source)
         {
             return source.InternalQueryable.LastOrDefault();
         }
+
         public static TSource LastOrDefault<TSource>(this TaolxQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
         {
             return source.InternalQueryable.LastOrDefault(predicate);
@@ -357,8 +358,7 @@ namespace Taolx.Common.DataAccess
         {
             return source.InternalQueryable.Min(selector);
         }
-
-
+        
         public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this TaolxQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
             return source.InternalQueryable.OrderBy(keySelector);
@@ -368,8 +368,7 @@ namespace Taolx.Common.DataAccess
         {
             return source.InternalQueryable.OrderBy(keySelector, comparer);
         }
-
-
+        
         public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this TaolxQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
             return source.InternalQueryable.OrderByDescending(keySelector);
@@ -397,8 +396,7 @@ namespace Taolx.Common.DataAccess
             var qp = source.InternalQueryable.Select(selector);
             return source.Clone(qp);
         }
-
-
+        
         public static TaolxQueryable<TResult> SelectMany<TSource, TResult>(this TaolxQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TResult>>> selector)
         {
             var qp = source.InternalQueryable.SelectMany(selector);
@@ -410,6 +408,7 @@ namespace Taolx.Common.DataAccess
             var qp = source.InternalQueryable.SelectMany(selector);
             return source.Clone(qp);
         }
+
         public static TaolxQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this TaolxQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
         {
             var qp = source.InternalQueryable.SelectMany(collectionSelector, resultSelector);
@@ -609,5 +608,9 @@ namespace Taolx.Common.DataAccess
             return source.Clone(source.InternalQueryable.Where(predicate));
         }
 
+        public static Task<List<TSource>> ToListAsync<TSource>(this TaolxQueryable<TSource> source)
+        {
+            return source.InternalQueryable.ToListAsync();
+        }
     }
 }

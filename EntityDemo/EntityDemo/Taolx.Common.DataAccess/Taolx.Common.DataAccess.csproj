@@ -58,7 +58,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseType.cs" />
-    <Compile Include="Extended\BatchExtensions.cs" />
+    <Compile Include="Extended\ExpressionExtensions.cs" />
+    <Compile Include="Extended\ObjectQueryExtensions.cs" />
+    <Compile Include="Extended\TaolxQueryableBatchExtensions.cs" />
     <Compile Include="Extended\TaolxQueryableExtended.cs" />
     <Compile Include="InternalDbContext.cs" />
     <Compile Include="ITaolxDbSet.cs" />
