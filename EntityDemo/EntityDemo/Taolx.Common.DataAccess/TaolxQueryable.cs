@@ -10,6 +10,7 @@ namespace Taolx.Common.DataAccess
 {
     public class TaolxQueryable<TEntity> : IQueryable<TEntity>
     {
+         
         internal IQueryable<TEntity> InternalQueryable { set; get; }
 
         Type IQueryable.ElementType

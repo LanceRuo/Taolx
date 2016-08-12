@@ -27,8 +27,7 @@ namespace EntityFramework.Extensions
         /// any entities that have already been materialized in the current context.        
         /// </remarks>
         [Obsolete("The API was refactored to no longer need this extension method. Use query.Where(expression).Delete() syntax instead.")]
-        public static int Delete<TEntity>(this IQueryable<TEntity> source, IQueryable<TEntity> query)
-           where TEntity : class
+        public static int Delete<TEntity>(this IQueryable<TEntity> source, IQueryable<TEntity> query) where TEntity : class
         {
             return query.Delete();
         }

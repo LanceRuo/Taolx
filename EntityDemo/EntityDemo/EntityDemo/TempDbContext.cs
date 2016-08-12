@@ -22,6 +22,14 @@ namespace EntityDemo
             };
         }
 
+
+        public DbSet<MerInfo> Entity1 { set; get; }
+
+
+        public DbSet<TradeInfo> Entity2 { set; get; }
+
+
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

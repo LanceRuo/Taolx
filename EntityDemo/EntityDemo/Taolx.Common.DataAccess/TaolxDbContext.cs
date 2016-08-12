@@ -18,9 +18,7 @@ namespace Taolx.Common.DataAccess
     /// 淘旅行数据库上下文
     /// </summary>
     public class TaolxDbContext : IDisposable
-    {
-
-         
+    {              
 
         /// <summary>
         /// 只读dbContext
@@ -135,10 +133,7 @@ namespace Taolx.Common.DataAccess
                     continue;
                 var entityType = type.GenericTypeArguments[0];
                 var dbSet = TaolxDbSet.Create(entityType, this);
-
-                Lazy<int> ds = new Lazy<int>();
-
-                int a = ds;
+                Lazy<int> ds = new Lazy<int>();                 
                 property.SetValue(this, dbSet);
             }
         }

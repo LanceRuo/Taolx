@@ -58,6 +58,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseType.cs" />
+    <Compile Include="Extended\BatchExtensions.cs" />
+    <Compile Include="Extended\TaolxQueryableExtended.cs" />
     <Compile Include="InternalDbContext.cs" />
     <Compile Include="ITaolxDbSet.cs" />
     <Compile Include="TaolxDbContext.cs" />
