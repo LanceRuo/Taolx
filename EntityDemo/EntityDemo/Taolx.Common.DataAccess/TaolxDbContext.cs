@@ -14,12 +14,14 @@ using Taolx.Common.DataAccess;
 namespace Taolx.Common.DataAccess
 {
 
-
     /// <summary>
     /// 淘旅行数据库上下文
     /// </summary>
     public class TaolxDbContext : IDisposable
     {
+
+         
+
         /// <summary>
         /// 只读dbContext
         /// </summary>
@@ -132,7 +134,11 @@ namespace Taolx.Common.DataAccess
                 if (!type.GetInterfaces().Any(o => o.Name == typeName))
                     continue;
                 var entityType = type.GenericTypeArguments[0];
-                var dbSet = TaolxDbSet.Create(entityType, this);  
+                var dbSet = TaolxDbSet.Create(entityType, this);
+
+                Lazy<int> ds = new Lazy<int>();
+
+                int a = ds;
                 property.SetValue(this, dbSet);
             }
         }
