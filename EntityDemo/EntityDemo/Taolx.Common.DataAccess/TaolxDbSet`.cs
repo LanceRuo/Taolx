@@ -21,12 +21,7 @@ namespace Taolx.Common.DataAccess
         /// TEntityType
         /// </summary>
         internal static Type TEntityType { get { return typeof(TEntity); } }
-
-        /// <summary>
-        /// 淘旅行dbContext
-        /// </summary>
-        internal TaolxDbContext TaolxDbContext { private set; get; }
-
+        
         /// <summary>
         /// EntityFramework read dbset 
         /// </summary>

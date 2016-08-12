@@ -68,6 +68,7 @@
     <Compile Include="TaolxDbSet`.cs" />
     <Compile Include="InternalDbContext`.cs" />
     <Compile Include="TaolxQueryable.cs" />
+    <Compile Include="TaolxQueryable`.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntityFramework.Extended\EntityFramework.Extended.csproj">
