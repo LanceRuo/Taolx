@@ -6,25 +6,29 @@ using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Taolx.Common.DataAccess;
 
 namespace Taolx.Common.DataAccess
 {
+
+
     /// <summary>
     /// 淘旅行数据库上下文
     /// </summary>
-    public class TaolxDbContext
+    public class TaolxDbContext : IDisposable
     {
         /// <summary>
         /// 只读dbContext
         /// </summary>
-        internal DbContext ReadDbContext { private set; get; }
+        internal InternalDbContext ReadDbContext { private set; get; }
 
         /// <summary>
         /// 写入dbContext
         /// </summary>
-        internal DbContext WriteDbContext { private set; get; }
+        internal InternalDbContext WriteDbContext { private set; get; }
 
         /// <summary>
         ///  只读连接字符串
@@ -44,6 +48,8 @@ namespace Taolx.Common.DataAccess
         /// <param name="databaseType">数据库类型,默认为MySql</param>
         public TaolxDbContext(string readConnectionString, string writeConnectionString, DatabaseType databaseType = DatabaseType.MySql)
         {
+            ReadConnectionString = readConnectionString;
+            WriteConnectionString = writeConnectionString;
             //创建dbContext
             CreateDbContext(readConnectionString, writeConnectionString, databaseType);
             //初始化dbSet
@@ -59,14 +65,39 @@ namespace Taolx.Common.DataAccess
         private void CreateDbContext(string readConnectionString, string writeConnectionString, DatabaseType databaseType = DatabaseType.MySql)
         {
             var readDbConnection = CreateDbConnection(readConnectionString, databaseType);
-            ReadDbContext = new DbContext(readDbConnection, true);
+            ReadDbContext = InternalDbContext.Create(GetType(), GetAllEntityTypes, readDbConnection, true);
             if (readConnectionString == writeConnectionString)
                 WriteDbContext = ReadDbContext;
             else
             {
                 var writeDbConnection = CreateDbConnection(writeConnectionString, databaseType);
-                WriteDbContext = new DbContext(writeDbConnection, true);
+                WriteDbContext = InternalDbContext.Create(GetType(), GetAllEntityTypes, writeDbConnection, true);
             }
+
+            ReadDbContext.Database.Log = Log;
+            WriteDbContext.Database.Log = Log;
+        }
+
+        /// <summary>
+        /// 获取当前类中的entity类型
+        /// </summary>
+        /// <returns></returns>
+        private List<Type> GetAllEntityTypes()
+        {
+            List<Type> result = new List<Type>();
+            var properties = GetType().GetProperties();
+            var typeName = typeof(ITaolxDbSet<>).Name;
+            foreach (var property in properties)
+            {
+                var type = property.PropertyType;
+                if (!type.GetInterfaces().Any(o => o.Name == typeName))
+                    continue;
+                var entityType = type.GenericTypeArguments[0];
+                if (entityType.IsValueType)
+                    throw new ArgumentException(string.Format("类型{0}不是有效的实体类型", entityType.FullName));
+                result.Add(entityType);
+            }
+            return result;
         }
 
         /// <summary>
@@ -94,10 +125,15 @@ namespace Taolx.Common.DataAccess
         private void InitDbSet()
         {
             var properties = GetType().GetProperties();
+            var typeName = typeof(ITaolxDbSet<>).Name;
             foreach (var property in properties)
             {
-                if (property.PropertyType.FullName.IndexOf("TaolxDbSet") > 0)
-                    property.SetValue(this, null);
+                var type = property.PropertyType;
+                if (!type.GetInterfaces().Any(o => o.Name == typeName))
+                    continue;
+                var entityType = type.GenericTypeArguments[0];
+                var dbSet = TaolxDbSet.Create(entityType, this);  
+                property.SetValue(this, dbSet);
             }
         }
 
@@ -110,5 +146,10 @@ namespace Taolx.Common.DataAccess
             Debug.WriteLine(string.Format("{0}:{1}:{2}", GetType().FullName, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"), log));
         }
 
+        void IDisposable.Dispose()
+        {
+            ReadDbContext.Dispose();
+            WriteDbContext.Dispose();
+        }
     }
 }

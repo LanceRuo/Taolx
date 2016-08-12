@@ -15,6 +15,7 @@ namespace EntityDemo.Entities
         /// <summary>
         /// 自增主键id
         /// </summary>    
+        [Key]
         public int Id { set; get; }
 
         private DateTime? _createTime;

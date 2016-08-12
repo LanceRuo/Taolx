@@ -58,9 +58,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseType.cs" />
+    <Compile Include="InternalDbContext.cs" />
+    <Compile Include="ITaolxDbSet.cs" />
     <Compile Include="TaolxDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaolxDbSet.cs" />
     <Compile Include="TaolxDbSet`.cs" />
+    <Compile Include="InternalDbContext`.cs" />
+    <Compile Include="TaolxQueryable.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntityFramework.Extended\EntityFramework.Extended.csproj">

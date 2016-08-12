@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace EntityDemo.Entities
     [Table("mer_info")]
     public class MerInfo : BaseEntity
     {
+
         /// <summary>
         /// 商户id
         /// </summary>
