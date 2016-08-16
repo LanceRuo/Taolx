@@ -17,8 +17,7 @@ namespace EntityDemo
 
 
         public TaolxDbSet<MerInfo> Entity1 { set; get; }
-
-
+        
         public TaolxDbSet<TradeInfo> Entity2 { set; get; }
 
         public TaolxDbContextDemo() : base(readConnectionString, writeConnectionString)

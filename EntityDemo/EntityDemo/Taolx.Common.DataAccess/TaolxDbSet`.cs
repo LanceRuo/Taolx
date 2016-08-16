@@ -10,7 +10,7 @@ using Taolx.Common.DataAccess;
 
 namespace Taolx.Common.DataAccess
 {
-     
+
     /// <summary>
     /// 淘旅行dbSet
     /// </summary>
@@ -21,16 +21,11 @@ namespace Taolx.Common.DataAccess
         /// TEntityType
         /// </summary>
         internal static Type TEntityType { get { return typeof(TEntity); } }
-        
+
         /// <summary>
         /// EntityFramework read dbset 
         /// </summary>
-        internal DbSet<TEntity> ReadDbSet { private set; get; }
-
-        /// <summary>
-        ///  EntityFramework write dbset 
-        /// </summary>
-        internal DbSet<TEntity> WriteDbSet { private set; get; }
+        internal DbSet<TEntity> ReadDbSet { set; get; }
 
         /// <summary>
         /// 构造方法
@@ -40,9 +35,7 @@ namespace Taolx.Common.DataAccess
         {
             TaolxDbContext = taolxDbContext;
             ReadDbSet = taolxDbContext.ReadDbContext.Set<TEntity>();
-            WriteDbSet = taolxDbContext.WriteDbContext.Set<TEntity>();
             InternalQueryable = ReadDbSet.AsNoTracking();
         }
-         
     }
 }

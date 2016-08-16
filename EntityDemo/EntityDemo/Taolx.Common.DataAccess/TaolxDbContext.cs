@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.SqlClient;
@@ -21,14 +22,37 @@ namespace Taolx.Common.DataAccess
     {
 
         /// <summary>
+        /// writeDbConnection
+        /// </summary>
+        private DbConnection _writeDbConnection;
+
+        /// <summary>
+        /// 读连接
+        /// </summary>
+        internal DbConnection ReadDbConnection { private set; get; }
+
+        /// <summary>
+        /// 写入连接
+        /// </summary>
+        internal DbConnection WriteDbConnection
+        {
+            get
+            {
+                if (_writeDbConnection == null)
+                    _writeDbConnection = CreateDbConnection(WriteConnectionString, DatabaseType);
+                return _writeDbConnection;
+            }
+        }
+
+        /// <summary>
         /// 只读dbContext
         /// </summary>
         internal InternalDbContext ReadDbContext { private set; get; }
 
         /// <summary>
-        /// 写入dbContext
+        /// 事务
         /// </summary>
-        internal InternalDbContext WriteDbContext { private set; get; }
+        internal DbTransaction WriteDbTransaction { private set; get; }
 
         /// <summary>
         ///  只读连接字符串
@@ -41,6 +65,11 @@ namespace Taolx.Common.DataAccess
         public string WriteConnectionString { private set; get; }
 
         /// <summary>
+        /// DatabaseType
+        /// </summary>
+        public DatabaseType DatabaseType { set; get; }
+
+        /// <summary>
         /// 构造方法
         /// </summary>
         /// <param name="readConnectionString">只读连接字符串</param>
@@ -50,6 +79,7 @@ namespace Taolx.Common.DataAccess
         {
             ReadConnectionString = readConnectionString;
             WriteConnectionString = writeConnectionString;
+            DatabaseType = databaseType;
             //创建dbContext
             CreateDbContext(readConnectionString, writeConnectionString, databaseType);
             //初始化dbSet
@@ -64,18 +94,9 @@ namespace Taolx.Common.DataAccess
         /// <param name="databaseType">数据库类型,默认为MySql</param>
         private void CreateDbContext(string readConnectionString, string writeConnectionString, DatabaseType databaseType = DatabaseType.MySql)
         {
-            var readDbConnection = CreateDbConnection(readConnectionString, databaseType);
-            ReadDbContext = InternalDbContext.Create(GetType(), GetAllEntityTypes, readDbConnection, true);
-            if (readConnectionString == writeConnectionString)
-                WriteDbContext = ReadDbContext;
-            else
-            {
-                var writeDbConnection = CreateDbConnection(writeConnectionString, databaseType);
-                WriteDbContext = InternalDbContext.Create(GetType(), GetAllEntityTypes, writeDbConnection, true);
-            }
-
+            ReadDbConnection = CreateDbConnection(readConnectionString, databaseType);
+            ReadDbContext = InternalDbContext.Create(GetType(), GetAllEntityTypes, ReadDbConnection, true);
             ReadDbContext.Database.Log = Log;
-            WriteDbContext.Database.Log = Log;
         }
 
         /// <summary>
@@ -144,9 +165,43 @@ namespace Taolx.Common.DataAccess
         /// 开启事务
         /// </summary>
         /// <returns></returns>
-        public DbContextTransaction BeginTransaction()
+        public DbTransaction BeginTransaction()
         {
-            return WriteDbContext.Database.BeginTransaction();
+            if (WriteDbConnection.State != ConnectionState.Open)
+                WriteDbConnection.Open();
+            return WriteDbTransaction = WriteDbConnection.BeginTransaction();
+        }
+
+        /// <summary>
+        /// 开启事务
+        /// </summary>
+        /// <param name="isolationLevel">事务级别</param>
+        /// <returns></returns>
+        public DbTransaction BeginTransaction(IsolationLevel isolationLevel)
+        {
+            return WriteDbTransaction = WriteDbConnection.BeginTransaction(isolationLevel);
+        }
+
+        /// <summary>
+        /// 提交事务
+        /// </summary>
+        public void Commit()
+        {
+            if (WriteDbTransaction == null)
+                throw new ArgumentNullException("事务对象为空,请检查是否开启事务");
+            WriteDbTransaction.Commit();
+            WriteDbTransaction = null;
+        }
+
+        /// <summary>
+        /// 回滚事务
+        /// </summary>
+        public void Rollback()
+        {
+            if (WriteDbTransaction == null)
+                throw new ArgumentNullException("事务对象为空,请检查是否开启事务");
+            WriteDbTransaction.Rollback();
+            WriteDbTransaction = null;
         }
 
         /// <summary>
@@ -158,11 +213,23 @@ namespace Taolx.Common.DataAccess
             Debug.WriteLine(string.Format("{0}:{1}:{2}", GetType().FullName, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"), log));
         }
 
-        void IDisposable.Dispose()
+        /// <summary>
+        /// 销毁
+        /// </summary>
+        public void Dispose()
         {
             ReadDbContext.Dispose();
-            WriteDbContext.Dispose();
+            WriteDbConnection.Dispose();
+            if (WriteDbTransaction != null)
+                Rollback();
         }
+
+
+        //public List<TEntity> SqlQuery<TEntity>(string sql)
+        //{
+        //    ctx.Students.SqlQuery( ).ToList();
+        //}
+
         #endregion
     }
 }

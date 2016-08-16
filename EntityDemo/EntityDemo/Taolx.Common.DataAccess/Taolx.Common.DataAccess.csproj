@@ -58,12 +58,33 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseType.cs" />
+    <Compile Include="Dynamic\DynamicQueryable.cs" />
     <Compile Include="Extended\ExpressionExtensions.cs" />
     <Compile Include="Extended\ObjectQueryExtensions.cs" />
     <Compile Include="Extended\TaolxQueryableBatchExtensions.cs" />
     <Compile Include="Extended\TaolxQueryableExtended.cs" />
     <Compile Include="InternalDbContext.cs" />
     <Compile Include="ITaolxDbSet.cs" />
+    <Compile Include="Mapping\EntityMap.cs" />
+    <Compile Include="Mapping\IMappingProvider.cs" />
+    <Compile Include="Mapping\MappingResolver.cs" />
+    <Compile Include="Mapping\MetadataMappingProvider.cs" />
+    <Compile Include="Mapping\PropertyMap.cs" />
+    <Compile Include="Reflection\DelegateFactory.cs" />
+    <Compile Include="Reflection\DynamicProxy.cs" />
+    <Compile Include="Reflection\FieldAccessor.cs" />
+    <Compile Include="Reflection\ILGeneratorExtensions.cs" />
+    <Compile Include="Reflection\IMemberAccessor.cs" />
+    <Compile Include="Reflection\IMemberInfo.cs" />
+    <Compile Include="Reflection\IMethodAccessor.cs" />
+    <Compile Include="Reflection\LateBinder.cs" />
+    <Compile Include="Reflection\MemberAccessor.cs" />
+    <Compile Include="Reflection\MethodAccessor.cs" />
+    <Compile Include="Reflection\ObjectCloner.cs" />
+    <Compile Include="Reflection\ObjectCopier.cs" />
+    <Compile Include="Reflection\PropertyAccessor.cs" />
+    <Compile Include="Reflection\ReflectionHelper.cs" />
+    <Compile Include="Reflection\TypeAccessor.cs" />
     <Compile Include="TaolxDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaolxDbSet.cs" />
@@ -71,12 +92,6 @@
     <Compile Include="InternalDbContext`.cs" />
     <Compile Include="TaolxQueryable.cs" />
     <Compile Include="TaolxQueryable`.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EntityFramework.Extended\EntityFramework.Extended.csproj">
-      <Project>{d390c235-242c-4e92-9e0b-d2463e87b0f0}</Project>
-      <Name>EntityFramework.Extended</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

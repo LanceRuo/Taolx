@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EntityDemo.Entities
 {
@@ -15,7 +16,8 @@ namespace EntityDemo.Entities
         /// <summary>
         /// 自增主键id
         /// </summary>    
-        [Key]
+       [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key()]
         public int Id { set; get; }
 
         private DateTime? _createTime;
@@ -34,6 +36,7 @@ namespace EntityDemo.Entities
         }
 
         private DateTime? _updateTime;
+
         /// <summary>
         /// 更新时间
         /// </summary>

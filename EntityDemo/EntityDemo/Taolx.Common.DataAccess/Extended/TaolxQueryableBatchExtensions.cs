@@ -1,11 +1,13 @@
-﻿using EntityFramework.Mapping;
-using EntityFramework.Reflection;
+﻿
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
 using System.Data.Entity.Core.EntityClient;
 using System.Data.Entity.Core.Objects;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Dynamic;
@@ -19,6 +21,8 @@ namespace Taolx.Common.DataAccess
     public static class BatchExtensions
     {
 
+        private static readonly string _selectRegex = @"SELECT\s*\r\n(?<ColumnValue>.+)?\s*AS\s*(?<ColumnAlias>\w+)\r\nFROM\s*(?<TableName>\w+\.\w+|\w+)\s*AS\s*(?<TableAlias>\w+)";
+
         /// <summary>
         /// 新增
         /// </summary>
@@ -27,9 +31,42 @@ namespace Taolx.Common.DataAccess
         /// <param name="entity"></param>
         /// <returns></returns>
 
-        public static TEntity Add<TEntity>(this TaolxQueryable<TEntity> source, TEntity entity)
+        public static TEntity Add<TEntity>(this TaolxQueryable<TEntity> source, TEntity entity) where TEntity : class
         {
+
+            ObjectQuery<TEntity> sourceQuery = source.ToObjectQuery();
+            if (sourceQuery == null)
+                throw new ArgumentException("The query must be of type ObjectQuery or DbQuery.", "source");
+            ObjectContext objectContext = sourceQuery.Context;
+            if (objectContext == null)
+                throw new ArgumentException("The ObjectContext for the source query can not be null.", "source");
+            EntityMap entityMap = sourceQuery.GetEntityMap<TEntity>();
+            if (entityMap == null)
+                throw new ArgumentException("Could not load the entity mapping information for the query ObjectSet.", "source");
+            InternalAdd(source, objectContext, entityMap, new List<TEntity> { entity });
             return entity;
+        }
+
+        /// <summary>
+        /// 增加多个
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="enities"></param>
+        /// <returns></returns>
+        public static IEnumerable<TEntity> AddRange<TEntity>(this TaolxQueryable<TEntity> source, IEnumerable<TEntity> enities) where TEntity : class
+        {
+            ObjectQuery<TEntity> sourceQuery = source.ToObjectQuery();
+            if (sourceQuery == null)
+                throw new ArgumentException("The query must be of type ObjectQuery or DbQuery.", "source");
+            ObjectContext objectContext = sourceQuery.Context;
+            if (objectContext == null)
+                throw new ArgumentException("The ObjectContext for the source query can not be null.", "source");
+            EntityMap entityMap = sourceQuery.GetEntityMap<TEntity>();
+            if (entityMap == null)
+                throw new ArgumentException("Could not load the entity mapping information for the query ObjectSet.", "source");
+            InternalAdd(source, objectContext, entityMap, enities);
+            return enities;
         }
 
         /// <summary>
@@ -51,7 +88,7 @@ namespace Taolx.Common.DataAccess
             EntityMap entityMap = sourceQuery.GetEntityMap<TEntity>();
             if (entityMap == null)
                 throw new ArgumentException("Could not load the entity mapping information for the query ObjectSet.", "source");
-            return InternalDelete(objectContext, entityMap, sourceQuery);
+            return InternalDelete(source, objectContext, entityMap, sourceQuery);
         }
 
         /// <summary>
@@ -68,39 +105,100 @@ namespace Taolx.Common.DataAccess
                 throw new ArgumentNullException("source");
             if (updateExpression == null)
                 throw new ArgumentNullException("updateExpression");
-
             ObjectQuery<TEntity> sourceQuery = source.ToObjectQuery();
             if (sourceQuery == null)
                 throw new ArgumentException("The query must be of type ObjectQuery or DbQuery.", "source");
-
             ObjectContext objectContext = sourceQuery.Context;
             if (objectContext == null)
                 throw new ArgumentException("The ObjectContext for the query can not be null.", "source");
-
             EntityMap entityMap = sourceQuery.GetEntityMap<TEntity>();
             if (entityMap == null)
                 throw new ArgumentException("Could not load the entity mapping information for the source.", "source");
-
-
-            return InternalUpdate(objectContext, entityMap, sourceQuery, updateExpression);
+            return InternalUpdate(source, objectContext, entityMap, sourceQuery, updateExpression);
         }
-        
+
         #region private
 
-        private static int InternalDelete<TEntity>(ObjectContext objectContext, EntityMap entityMap, ObjectQuery<TEntity> query) where TEntity : class
+        private static IEnumerable<TEntity> InternalAdd<TEntity>(TaolxQueryable<TEntity> source, ObjectContext objectContext, EntityMap entityMap, IEnumerable<TEntity> entities) where TEntity : class
         {
-            DbConnection deleteConnection = null;
-            DbTransaction deleteTransaction = null;
+            DbConnection insertConnection = source.TaolxDbContext.WriteDbConnection;
+            DbTransaction insertTransaction = source.TaolxDbContext.WriteDbTransaction;
+            DbCommand insertCommand = null;
+            bool ownConnection = false;
+            bool ownTransaction = false;
+            try
+            {
+                if (insertConnection.State != ConnectionState.Open)
+                {
+                    insertConnection.Open();
+                    ownConnection = true;
+                }
+                if (insertTransaction == null)
+                {
+                    insertTransaction = insertConnection.BeginTransaction();
+                    ownTransaction = true;
+                }
+                insertCommand = insertConnection.CreateCommand();
+                insertCommand.Transaction = insertTransaction;
+                if (objectContext.CommandTimeout.HasValue)
+                    insertCommand.CommandTimeout = objectContext.CommandTimeout.Value;
+                CheckIsIdentity<TEntity>(entityMap);
+                source.TaolxDbContext.Log(string.Format("{0}:-------Insert sql start", source.TaolxDbContext.GetType().Name));
+                foreach (var entity in entities)
+                {
+                    var sql = CreateInsertSql(entityMap, entity);
+                    source.TaolxDbContext.Log(sql.Item1);
+                    sql.Item2.ForEach(p => source.TaolxDbContext.Log(string.Format(" \t{0}:{1}   \t({2});", p.ParameterName, p.Value, p.DbType)));
+                    source.TaolxDbContext.Log(string.Format("{0}:-------Insert sql end", source.TaolxDbContext.GetType().Name));
+                    insertCommand.CommandType = CommandType.Text;
+                    insertCommand.CommandText = sql.Item1;
+                    insertCommand.Parameters.Clear();
+                    insertCommand.Parameters.AddRange(sql.Item2.ToArray());
+                    var result = insertCommand.ExecuteScalar();
+                    foreach (var key in entityMap.KeyMaps)
+                    {
+                        if (key.IsStoreGeneratedIdentity)
+                        {
+                            var kp = entity.GetType().GetProperty(key.PropertyName);
+                            var ty = kp.PropertyType;
+                            var nResult = Convert.ChangeType(result, ty);
+                            kp.SetValue(entity, nResult);
+                            break;
+                        }
+                    }
+                }
+                if (ownTransaction)
+                    insertTransaction.Commit();
+                return entities;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (insertCommand != null)
+                    insertCommand.Dispose();
+                if (insertTransaction != null && ownTransaction)
+                    insertTransaction.Dispose();
+                if (insertConnection != null && ownConnection)
+                    insertConnection.Close();
+            }
+        }
+
+        private static int InternalDelete<TEntity>(TaolxQueryable<TEntity> source, ObjectContext objectContext, EntityMap entityMap, ObjectQuery<TEntity> query) where TEntity : class
+        {
+            DbConnection deleteConnection = source.TaolxDbContext.WriteDbConnection;
+            DbTransaction deleteTransaction = source.TaolxDbContext.WriteDbTransaction;
             DbCommand deleteCommand = null;
             bool ownConnection = false;
             bool ownTransaction = false;
-
             try
             {
                 // get store connection and transaction
-                var store = GetStore(objectContext);
-                deleteConnection = store.Item1;
-                deleteTransaction = store.Item2;
+                //var store = GetStore(objectContext);
+                //deleteConnection = store.Item1;
+                //deleteTransaction = store.Item2;
                 if (deleteConnection.State != ConnectionState.Open)
                 {
                     deleteConnection.Open();
@@ -128,18 +226,17 @@ namespace Taolx.Common.DataAccess
                 {
                     if (wroteKey)
                         sqlBuilder.Append(" AND ");
-
                     sqlBuilder.AppendFormat("j0.`{0}` = j1.`{0}`", keyMap.ColumnName);
                     wroteKey = true;
                 }
                 sqlBuilder.Append(")");
                 deleteCommand.CommandText = sqlBuilder.ToString().Replace("[", "`").Replace("]", "`");
 #if DEBUG
-                Debug.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-- LogStart----");
-                Debug.WriteLine(deleteCommand.CommandText);
+                source.TaolxDbContext.Log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-- LogStart----");
+                source.TaolxDbContext.Log(deleteCommand.CommandText);
                 foreach (DbParameter p in deleteCommand.Parameters)
-                    Debug.WriteLine(string.Format("{0}:{1} ({2});", p.ParameterName, p.Value, p.DbType));
-                Debug.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-- LogEnd----");
+                    source.TaolxDbContext.Log(string.Format("{0}:{1} ({2});", p.ParameterName, p.Value, p.DbType));
+                source.TaolxDbContext.Log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-- LogEnd----");
 #endif 
                 int result = deleteCommand.ExecuteNonQuery();
                 // only commit if created transaction
@@ -152,29 +249,27 @@ namespace Taolx.Common.DataAccess
             {
                 if (deleteCommand != null)
                     deleteCommand.Dispose();
-
                 if (deleteTransaction != null && ownTransaction)
                     deleteTransaction.Dispose();
-
                 if (deleteConnection != null && ownConnection)
                     deleteConnection.Close();
             }
         }
 
-        private static int InternalUpdate<TEntity>(ObjectContext objectContext, EntityMap entityMap, ObjectQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updateExpression, bool async = false)
+        private static int InternalUpdate<TEntity>(TaolxQueryable<TEntity> source, ObjectContext objectContext, EntityMap entityMap, ObjectQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updateExpression, bool async = false)
             where TEntity : class
         {
-            DbConnection updateConnection = null;
-            DbTransaction updateTransaction = null;
+            DbConnection updateConnection = source.TaolxDbContext.WriteDbConnection;
+            DbTransaction updateTransaction = source.TaolxDbContext.WriteDbTransaction;
             DbCommand updateCommand = null;
             bool ownConnection = false;
             bool ownTransaction = false;
             try
             {
                 // get store connection and transaction
-                var store = GetStore(objectContext);
-                updateConnection = store.Item1;
-                updateTransaction = store.Item2;
+                //var store = GetStore(objectContext);
+                //updateConnection = store.Item1;
+                //updateTransaction = store.Item2;
                 if (updateConnection.State != ConnectionState.Open)
                 {
                     updateConnection.Open();
@@ -234,7 +329,6 @@ namespace Taolx.Common.DataAccess
                             parameterExpression = p;
                         return p;
                     });
-
                     if (parameterExpression == null)
                     {
                         object value;
@@ -250,7 +344,6 @@ namespace Taolx.Common.DataAccess
                             LambdaExpression lambda = Expression.Lambda(memberExpression, null);
                             value = lambda.Compile().DynamicInvoke();
                         }
-
                         if (value != null)
                         {
                             string parameterName = "p__update__" + nameCount++;
@@ -258,7 +351,6 @@ namespace Taolx.Common.DataAccess
                             parameter.ParameterName = parameterName;
                             parameter.Value = value;
                             updateCommand.Parameters.Add(parameter);
-
                             sqlBuilder.AppendFormat("`{0}` = @{1}", columnName, parameterName);
                         }
                         else
@@ -288,25 +380,20 @@ namespace Taolx.Common.DataAccess
                         string sql = selectQuery.ToTraceString();
 
                         // parse select part of sql to use as update
-                        string regex = @"SELECT\s*\r\n(?<ColumnValue>.+)?\s*AS\s*(?<ColumnAlias>\w+)\r\nFROM\s*(?<TableName>\w+\.\w+|\w+)\s*AS\s*(?<TableAlias>\w+)";
-                        Match match = Regex.Match(sql, regex);
+
+                        Match match = Regex.Match(sql, _selectRegex);
                         if (!match.Success)
                             throw new ArgumentException("The MemberAssignment expression could not be processed.", "updateExpression");
-
                         string value = match.Groups["ColumnValue"].Value;
                         string alias = match.Groups["TableAlias"].Value;
-
                         value = value.Replace(alias + ".", "");
-
                         foreach (ObjectParameter objectParameter in selectQuery.Parameters)
                         {
                             string parameterName = "p__update__" + nameCount++;
-
                             var parameter = updateCommand.CreateParameter();
                             parameter.ParameterName = parameterName;
                             parameter.Value = objectParameter.Value;
                             updateCommand.Parameters.Add(parameter);
-
                             value = value.Replace(objectParameter.Name, parameterName);
                         }
                         sqlBuilder.AppendFormat("`{0}` = {1}", columnName, value);
@@ -316,11 +403,11 @@ namespace Taolx.Common.DataAccess
 
                 updateCommand.CommandText = sqlBuilder.ToString().Replace("[", "`").Replace("]", "`");
 #if DEBUG
-                Debug.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-- LogStart----");
-                Debug.WriteLine(updateCommand.CommandText);
+                source.TaolxDbContext.Log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-- LogStart----");
+                source.TaolxDbContext.Log(updateCommand.CommandText);
                 foreach (DbParameter p in updateCommand.Parameters)
-                    Debug.WriteLine(string.Format("{0}:{1} ({2});", p.ParameterName, p.Value, p.DbType));
-                Debug.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-- LogEnd----");
+                    source.TaolxDbContext.Log(string.Format("{0}:{1} ({2});", p.ParameterName, p.Value, p.DbType));
+                source.TaolxDbContext.Log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-- LogEnd----");
 #endif
                 int result = updateCommand.ExecuteNonQuery();
                 // only commit if created transaction
@@ -370,7 +457,6 @@ namespace Taolx.Common.DataAccess
             {
                 if (selector.Length > 4)
                     selector.Append((", "));
-
                 selector.Append(propertyMap.PropertyName);
             }
             selector.Append(")");
@@ -392,7 +478,70 @@ namespace Taolx.Common.DataAccess
                 command.Parameters.Add(parameter);
             }
             return innerJoinSql;
-        } 
+        }
+
+        private static Tuple<string, List<MySqlParameter>> CreateInsertSql<TEntity>(EntityMap entityMap, TEntity entity, int outIndex = 0)
+        {
+            var allFileds = entityMap.PropertyMaps;
+            var needAddKeys = allFileds.Where(o => entityMap.KeyMaps.All(k => o.ColumnName != k.ColumnName)).ToList();
+            var sqlBuilder = new StringBuilder();
+            sqlBuilder.AppendFormat("INSERT INTO {0} ({1}) VALUES(", entityMap.TableName, string.Join(",", needAddKeys.Select(p => string.Format("`{0}`", p.ColumnName))));
+            var index = 0;
+            List<MySqlParameter> sp = new List<MySqlParameter>();
+            List<string> values = new List<string>();
+            foreach (var columnMapping in needAddKeys)
+            {
+                var @value = entity.GetType().GetProperty(columnMapping.PropertyName).GetValue(entity);
+                if (@value == null)
+                {
+                    values.Add("null");
+                    continue;
+                }
+                else
+                {
+                    var pName = string.Format("@_{0}_{1}", outIndex, index, columnMapping.ColumnName);
+                    var vType = @value.GetType();
+                    MySqlParameter p = null;
+                    if (vType.IsEnum)
+                        p = new MySqlParameter(pName, (int)@value);
+                    else
+                        p = new MySqlParameter(pName, @value);
+                    sp.Add(p);
+                    values.Add(pName);
+                    index++;
+                }
+            }
+            sqlBuilder.AppendFormat("{0});", string.Join(",", values));
+            var keyProperty = string.Empty;
+            foreach (var key in entityMap.KeyMaps)
+            {
+                if (key.IsStoreGeneratedIdentity)
+                {
+                    sqlBuilder.Append("SELECT LAST_INSERT_ID();");
+                    keyProperty = key.PropertyName;
+                }
+            }
+            return new Tuple<string, List<MySqlParameter>>(sqlBuilder.ToString(), sp);
+        }
+
+        /// <summary>
+        /// 是否自增长
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="entityMap"></param>
+        private static void CheckIsIdentity<TEntity>(EntityMap entityMap)
+        {
+            var type = typeof(TEntity);
+
+            foreach (var key in entityMap.KeyMaps)
+            {
+                var p = type.GetProperty(key.PropertyName);
+                var dg = (DatabaseGeneratedAttribute)p.GetCustomAttributes(typeof(DatabaseGeneratedAttribute), false).FirstOrDefault();
+                if (dg == null || dg.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
+                    key.IsStoreGeneratedIdentity = true;
+            }
+        }
+
         #endregion
     }
 }

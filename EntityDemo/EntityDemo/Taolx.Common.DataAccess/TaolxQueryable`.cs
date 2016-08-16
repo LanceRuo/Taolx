@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 namespace Taolx.Common.DataAccess
 {
 
-    public class TaolxQueryable<TEntity> : TaolxQueryable, IEnumerable<TEntity>
+    public class TaolxQueryable<TEntity> : TaolxQueryable, IEnumerable<TEntity>   
     {
 
         internal IQueryable<TEntity> InternalQueryable { set; get; }
@@ -18,6 +19,7 @@ namespace Taolx.Common.DataAccess
         /// 淘旅行dbContext
         /// </summary>
         internal TaolxDbContext TaolxDbContext { set; get; }
+         
 
         #region impl  method
 
