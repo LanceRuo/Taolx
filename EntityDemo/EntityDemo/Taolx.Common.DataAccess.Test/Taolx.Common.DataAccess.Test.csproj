@@ -74,10 +74,13 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="DAL\Entities\Table5.cs" />
+    <Compile Include="DAL\Entities\Table4.cs" />
     <Compile Include="DAL\Entities\Table3.cs" />
     <Compile Include="DAL\Entities\Table2.cs" />
     <Compile Include="DAL\Entities\Table1.cs" />
     <Compile Include="DAL\EntityFKDAL\TestEntityFKDbContext.cs" />
+    <Compile Include="DAL\TaolxDAL\TestTaolxDbContext2.cs" />
     <Compile Include="DAL\TaolxDAL\TestTaolxDbContext.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="TestConfig.cs" />

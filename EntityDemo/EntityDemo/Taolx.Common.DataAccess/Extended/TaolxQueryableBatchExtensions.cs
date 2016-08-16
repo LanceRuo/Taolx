@@ -362,12 +362,9 @@ namespace Taolx.Common.DataAccess
                     {
                         // create clean objectset to build query from
                         var objectSet = objectContext.CreateObjectSet<TEntity>();
-
                         Type[] typeArguments = new[] { entityMap.EntityType, memberExpression.Type };
-
                         ConstantExpression constantExpression = Expression.Constant(objectSet);
                         LambdaExpression lambdaExpression = Expression.Lambda(memberExpression, parameterExpression);
-
                         MethodCallExpression selectExpression = Expression.Call(
                             typeof(Queryable),
                             "Select",
@@ -380,7 +377,6 @@ namespace Taolx.Common.DataAccess
                         string sql = selectQuery.ToTraceString();
 
                         // parse select part of sql to use as update
-
                         Match match = Regex.Match(sql, _selectRegex);
                         if (!match.Success)
                             throw new ArgumentException("The MemberAssignment expression could not be processed.", "updateExpression");
@@ -400,15 +396,10 @@ namespace Taolx.Common.DataAccess
                     }
                     wroteSet = true;
                 }
-
-                updateCommand.CommandText = sqlBuilder.ToString().Replace("[", "`").Replace("]", "`");
-#if DEBUG
-                source.TaolxDbContext.Log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-- LogStart----");
+                updateCommand.CommandText = sqlBuilder.ToString().Replace("[", "`").Replace("]", "`"); 
                 source.TaolxDbContext.Log(updateCommand.CommandText);
                 foreach (DbParameter p in updateCommand.Parameters)
-                    source.TaolxDbContext.Log(string.Format("{0}:{1} ({2});", p.ParameterName, p.Value, p.DbType));
-                source.TaolxDbContext.Log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-- LogEnd----");
-#endif
+                    source.TaolxDbContext.Log(string.Format("{0}:{1} ({2});", p.ParameterName, p.Value, p.DbType)); 
                 int result = updateCommand.ExecuteNonQuery();
                 // only commit if created transaction
                 if (ownTransaction)

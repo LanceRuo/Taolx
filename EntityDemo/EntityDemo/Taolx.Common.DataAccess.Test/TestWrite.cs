@@ -27,6 +27,48 @@ namespace Taolx.Common.DataAccess.Test
             TestEntityFKDbContext_Delete();
         }
 
+
+        [TestMethod]
+        public void TestAll_Add()
+        {
+            using (var db = TestConfig.CreateTestTaolxDbContext())
+            {
+            }
+            using (var db = TestConfig.CreateTestEntityFKDbContext())
+            {
+            }
+            TestTaolxDataAccess_Add();
+            TestEntityFKDbContext_Add();
+        }
+
+
+        [TestMethod]
+        public void TestAll_Update()
+        {
+            using (var db = TestConfig.CreateTestTaolxDbContext())
+            {
+            }
+            using (var db = TestConfig.CreateTestEntityFKDbContext())
+            {
+            }
+            TestTaolxDataAccess_Update();
+            TestEntityFKDbContext_Update();
+        }
+
+        [TestMethod]
+        public void TestAll_Delete()
+        {
+            using (var db = TestConfig.CreateTestTaolxDbContext())
+            {
+            }
+            using (var db = TestConfig.CreateTestEntityFKDbContext())
+            {
+            }
+            TestTaolxDataAccess_Delete();
+            TestEntityFKDbContext_Delete();
+        }
+
+
         [TestMethod]
         public void TestTaolxDataAccess_Add()
         {
@@ -124,7 +166,7 @@ namespace Taolx.Common.DataAccess.Test
                  {
                      db.BeginTransaction();
                      entity.CreateTime = entity.CreateTime.AddDays(1);
-                     for (var rindex = 0; rindex < 10; rindex++)
+                     for (var rindex = 0; rindex < 100; rindex++)
                          updateRows += db.Table2.Where(o => o.Id == entity.Id).Update(o => new Table2
                          {
                              CreateTime = entity.CreateTime,
@@ -273,7 +315,7 @@ namespace Taolx.Common.DataAccess.Test
                 using (db)
                 {
                     var trn = db.Database.BeginTransaction();
-                    for (var rindex = 0; rindex < 10; rindex++)
+                    for (var rindex = 0; rindex < 100; rindex++)
                     {
                         entity.CreateTime.AddDays(1);
                         db.Entry(entity).State = System.Data.Entity.EntityState.Modified;
@@ -294,7 +336,7 @@ namespace Taolx.Common.DataAccess.Test
             }
             Trace.WriteLine(string.Empty);
         }
-        
+
         [TestMethod]
         public void TestEntityFKDbContext_Delete()
         {

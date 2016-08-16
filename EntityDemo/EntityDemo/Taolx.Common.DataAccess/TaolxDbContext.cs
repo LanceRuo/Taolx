@@ -118,7 +118,7 @@ namespace Taolx.Common.DataAccess
                     throw new ArgumentException(string.Format("类型{0}不是有效的实体类型", entityType.FullName));
                 result.Add(entityType);
             }
-            return result;
+            return result.Distinct().ToList();
         }
 
         /// <summary>
@@ -154,7 +154,6 @@ namespace Taolx.Common.DataAccess
                     continue;
                 var entityType = type.GenericTypeArguments[0];
                 var dbSet = TaolxDbSet.Create(entityType, this);
-                Lazy<int> ds = new Lazy<int>();
                 property.SetValue(this, dbSet);
             }
         }
@@ -200,7 +199,14 @@ namespace Taolx.Common.DataAccess
         {
             if (WriteDbTransaction == null)
                 throw new ArgumentNullException("事务对象为空,请检查是否开启事务");
-            WriteDbTransaction.Rollback();
+            try
+            {
+                WriteDbTransaction.Rollback();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+            }
             WriteDbTransaction = null;
         }
 

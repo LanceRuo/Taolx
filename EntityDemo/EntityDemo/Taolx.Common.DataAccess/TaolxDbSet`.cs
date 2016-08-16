@@ -35,7 +35,7 @@ namespace Taolx.Common.DataAccess
         {
             TaolxDbContext = taolxDbContext;
             ReadDbSet = taolxDbContext.ReadDbContext.Set<TEntity>();
-            InternalQueryable = ReadDbSet.AsNoTracking();
+            InternalQueryable = ReadDbSet.AsNoTracking(); 
         }
     }
 }

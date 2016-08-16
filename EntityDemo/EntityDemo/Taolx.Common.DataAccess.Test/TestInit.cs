@@ -31,7 +31,7 @@ namespace Taolx.Common.DataAccess.Test
                 sw.Start();
                 using (TestTaolxDbContext db = new TestTaolxDbContext())
                 {
-                }
+                } 
                 sw.Stop();
                 return sw.ElapsedMilliseconds;
             };
