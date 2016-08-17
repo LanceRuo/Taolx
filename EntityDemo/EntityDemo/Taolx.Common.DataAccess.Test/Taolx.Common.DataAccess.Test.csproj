@@ -80,8 +80,10 @@
     <Compile Include="DAL\Entities\Table2.cs" />
     <Compile Include="DAL\Entities\Table1.cs" />
     <Compile Include="DAL\EntityFKDAL\TestEntityFKDbContext.cs" />
+    <Compile Include="DAL\TaolxDAL\DALExtended\TestTaolxDbContext.Table1.cs" />
     <Compile Include="DAL\TaolxDAL\TestTaolxDbContext2.cs" />
     <Compile Include="DAL\TaolxDAL\TestTaolxDbContext.cs" />
+    <Compile Include="DAL\Views\DemoView.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="TestConfig.cs" />
     <Compile Include="TestInit.cs" />

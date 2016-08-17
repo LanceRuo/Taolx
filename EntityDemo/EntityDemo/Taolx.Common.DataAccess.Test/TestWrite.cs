@@ -26,8 +26,7 @@ namespace Taolx.Common.DataAccess.Test
             TestTaolxDataAccess_Delete();
             TestEntityFKDbContext_Delete();
         }
-
-
+        
         [TestMethod]
         public void TestAll_Add()
         {
@@ -40,8 +39,7 @@ namespace Taolx.Common.DataAccess.Test
             TestTaolxDataAccess_Add();
             TestEntityFKDbContext_Add();
         }
-
-
+        
         [TestMethod]
         public void TestAll_Update()
         {
@@ -67,8 +65,7 @@ namespace Taolx.Common.DataAccess.Test
             TestTaolxDataAccess_Delete();
             TestEntityFKDbContext_Delete();
         }
-
-
+        
         [TestMethod]
         public void TestTaolxDataAccess_Add()
         {

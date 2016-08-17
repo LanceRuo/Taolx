@@ -35,7 +35,30 @@ namespace Taolx.Common.DataAccess
         {
             TaolxDbContext = taolxDbContext;
             ReadDbSet = taolxDbContext.ReadDbContext.Set<TEntity>();
-            InternalQueryable = ReadDbSet.AsNoTracking(); 
+            InternalQueryable = ReadDbSet.AsNoTracking();
+        }
+
+        /// <summary>
+        /// 用sql执行查询
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public List<TEntity> SqlQuery(string sql, params object[] parameters)
+        {
+            ReadDbSet.
+            return TaolxDbContext.ReadDbContext.Database.SqlQuery<TEntity>(sql, parameters).ToList(); 
+        }
+
+        /// <summary>
+        /// 用sql执行查询
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public List<TView> SqlQuery<TView>(string sql, params object[] parameters)
+        {
+            return TaolxDbContext.ReadDbContext.Database.SqlQuery<TView>(sql, parameters).ToList();
         }
     }
 }

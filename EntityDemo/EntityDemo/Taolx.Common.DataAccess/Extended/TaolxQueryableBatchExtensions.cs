@@ -48,7 +48,7 @@ namespace Taolx.Common.DataAccess
         }
 
         /// <summary>
-        /// 增加多个
+        /// 增加多个,最多一次性只能添加一百个对象
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="source"></param>
@@ -56,6 +56,10 @@ namespace Taolx.Common.DataAccess
         /// <returns></returns>
         public static IEnumerable<TEntity> AddRange<TEntity>(this TaolxQueryable<TEntity> source, IEnumerable<TEntity> enities) where TEntity : class
         {
+            if (enities == null)
+                throw new ArgumentNullException("enities", "实体对象集合不能为空!");
+            if (enities.Count() > 100)
+                throw new ArgumentException("实体集合对象中实体个数不能超过100个", "enities");
             ObjectQuery<TEntity> sourceQuery = source.ToObjectQuery();
             if (sourceQuery == null)
                 throw new ArgumentException("The query must be of type ObjectQuery or DbQuery.", "source");
@@ -396,10 +400,10 @@ namespace Taolx.Common.DataAccess
                     }
                     wroteSet = true;
                 }
-                updateCommand.CommandText = sqlBuilder.ToString().Replace("[", "`").Replace("]", "`"); 
+                updateCommand.CommandText = sqlBuilder.ToString().Replace("[", "`").Replace("]", "`");
                 source.TaolxDbContext.Log(updateCommand.CommandText);
                 foreach (DbParameter p in updateCommand.Parameters)
-                    source.TaolxDbContext.Log(string.Format("{0}:{1} ({2});", p.ParameterName, p.Value, p.DbType)); 
+                    source.TaolxDbContext.Log(string.Format("{0}:{1} ({2});", p.ParameterName, p.Value, p.DbType));
                 int result = updateCommand.ExecuteNonQuery();
                 // only commit if created transaction
                 if (ownTransaction)

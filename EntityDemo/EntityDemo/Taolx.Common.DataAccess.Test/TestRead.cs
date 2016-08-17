@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Taolx.Common.DataAccess.Test.DAL.TaolxDAL;
 namespace Taolx.Common.DataAccess.Test
 {
     [TestClass]
@@ -37,8 +37,21 @@ namespace Taolx.Common.DataAccess.Test
                   var count = 0;
                   using (db)
                   {
+                      db.Table1.GetByJobId(3);
+
                       var result = db.Table2.Where(o => o.Id > 100).ToList();
                       count = result.Count();
+
+                      var rr = db.Table2.Where(o => o.Id > 10).Select(o => new { o.Id, o.JobId }).ToList();
+                      var query = from t1 in db.Table2
+                                  join t2 in db.Table2 on t1.Id equals t2.Id into temp
+                                  from tt in temp.DefaultIfEmpty()
+                                  select new
+                                  {
+                                      T1 = t1,
+                                      T2 = tt
+                                  } ;
+                     // query.ToList()[0].T2;
                   }
                   sw.Stop();
                   return new Tuple<long, int>(sw.ElapsedMilliseconds, count);
