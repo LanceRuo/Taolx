@@ -10,9 +10,7 @@ namespace Taolx.Common.DataAccess.Test
 {
     [TestClass]
     public class TestRead
-    {
-
-
+    { 
         [TestMethod]
         public void TestAll()
         {
@@ -37,7 +35,7 @@ namespace Taolx.Common.DataAccess.Test
                   var count = 0;
                   using (db)
                   {
-                      db.Table1.GetByJobId(3);
+                      //db.Table1.GetByJobId(3);
 
                       var result = db.Table2.Where(o => o.Id > 100).ToList();
                       count = result.Count();

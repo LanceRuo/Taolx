@@ -19,7 +19,7 @@ namespace Taolx.Common.DataAccess.Test.DAL.TaolxDAL
         public static List<Table1> GetByJobId(this TaolxDbSet<Table1> source, int JobId)
         {
             const string sql = "select * from Table1 where id=@id";
-            return source.SqlQuery(sql, new { JobId = JobId });
+            return source.SqlQuery(sql, JobId);
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Taolx.Common.DataAccess.Test.DAL.TaolxDAL
         public static List<DemoView> GetViewByJobId(this TaolxDbSet<Table1> source, int JobId)
         {
             const string sql = "select * from Table1 where id=@id";
-            return source.SqlQuery<DemoView>(sql, new { JobId = JobId });
+            return source.SqlQuery<DemoView>(sql, JobId);
         }
     }
 }

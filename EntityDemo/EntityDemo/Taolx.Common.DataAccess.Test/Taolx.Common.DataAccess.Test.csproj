@@ -85,6 +85,7 @@
     <Compile Include="DAL\TaolxDAL\TestTaolxDbContext.cs" />
     <Compile Include="DAL\Views\DemoView.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="TaolxQueryable`.cs" />
     <Compile Include="TestConfig.cs" />
     <Compile Include="TestInit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

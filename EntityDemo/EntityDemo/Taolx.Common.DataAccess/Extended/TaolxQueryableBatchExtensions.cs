@@ -20,7 +20,9 @@ namespace Taolx.Common.DataAccess
 {
     public static class BatchExtensions
     {
-
+        /// <summary>
+        /// _selectRegex
+        /// </summary>
         private static readonly string _selectRegex = @"SELECT\s*\r\n(?<ColumnValue>.+)?\s*AS\s*(?<ColumnAlias>\w+)\r\nFROM\s*(?<TableName>\w+\.\w+|\w+)\s*AS\s*(?<TableAlias>\w+)";
 
         /// <summary>
@@ -119,6 +121,94 @@ namespace Taolx.Common.DataAccess
             if (entityMap == null)
                 throw new ArgumentException("Could not load the entity mapping information for the source.", "source");
             return InternalUpdate(source, objectContext, entityMap, sourceQuery, updateExpression);
+        }
+
+        public static TObj ExecuteScalar<TEntity, TObj>(this TaolxQueryable<TEntity> source, string sql, params object[] parameters)
+        {
+            DbConnection connection = source.TaolxDbContext.WriteDbConnection;
+            DbTransaction tran = source.TaolxDbContext.WriteDbTransaction;
+            DbCommand command = null;
+            bool ownConnection = false;
+            bool ownTransaction = false;
+            try
+            {
+                if (connection.State != ConnectionState.Open)
+                {
+                    connection.Open();
+                    ownConnection = true;
+                }
+                if (tran == null)
+                {
+                    tran = connection.BeginTransaction();
+                    ownTransaction = true;
+                }
+                command = connection.CreateCommand();
+                command.Transaction = tran;
+                command.CommandType = CommandType.Text;
+                command.CommandText = sql;
+                command.Parameters.AddRange(ConverParameters(parameters).ToArray());
+                var result = command.ExecuteScalar();
+                if (ownTransaction)
+                    tran.Commit();
+                return (TObj)result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (command != null)
+                    command.Dispose();
+                if (tran != null && ownTransaction)
+                    tran.Dispose();
+                if (connection != null && ownConnection)
+                    connection.Close();
+            }
+        }
+        
+        public static int ExecuteNonQuery<TEntity>(this TaolxQueryable<TEntity> source, string sql, params object[] parameters)
+        {
+            DbConnection connection = source.TaolxDbContext.WriteDbConnection;
+            DbTransaction tran = source.TaolxDbContext.WriteDbTransaction;
+            DbCommand command = null;
+            bool ownConnection = false;
+            bool ownTransaction = false;
+            try
+            {
+                if (connection.State != ConnectionState.Open)
+                {
+                    connection.Open();
+                    ownConnection = true;
+                }
+                if (tran == null)
+                {
+                    tran = connection.BeginTransaction();
+                    ownTransaction = true;
+                }
+                command = connection.CreateCommand();
+                command.Transaction = tran;
+                command.CommandType = CommandType.Text;
+                command.CommandText = sql;
+                command.Parameters.AddRange(ConverParameters(parameters).ToArray());
+                var result = command.ExecuteNonQuery();
+                if (ownTransaction)
+                    tran.Commit();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (command != null)
+                    command.Dispose();
+                if (tran != null && ownTransaction)
+                    tran.Dispose();
+                if (connection != null && ownConnection)
+                    connection.Close();
+            }
         }
 
         #region private
@@ -535,6 +625,19 @@ namespace Taolx.Common.DataAccess
                 if (dg == null || dg.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
                     key.IsStoreGeneratedIdentity = true;
             }
+        }
+
+        private static List<MySqlParameter> ConverParameters(params object[] parameters)
+        {
+            List<MySqlParameter> result = new List<MySqlParameter>();
+            if (parameters != null && parameters.Count() > 0)
+            {
+                foreach (var p in parameters)
+                {
+
+                }
+            }
+            return result;
         }
 
         #endregion

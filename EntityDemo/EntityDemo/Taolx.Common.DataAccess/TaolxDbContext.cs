@@ -225,17 +225,10 @@ namespace Taolx.Common.DataAccess
         public void Dispose()
         {
             ReadDbContext.Dispose();
-            WriteDbConnection.Dispose();
-            if (WriteDbTransaction != null)
+           if (WriteDbTransaction != null)
                 Rollback();
-        }
-
-
-        //public List<TEntity> SqlQuery<TEntity>(string sql)
-        //{
-        //    ctx.Students.SqlQuery( ).ToList();
-        //}
-
+            WriteDbConnection.Dispose();
+        } 
         #endregion
     }
 }

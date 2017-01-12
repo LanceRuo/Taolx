@@ -46,8 +46,7 @@ namespace Taolx.Common.DataAccess
         /// <returns></returns>
         public List<TEntity> SqlQuery(string sql, params object[] parameters)
         {
-            ReadDbSet.
-            return TaolxDbContext.ReadDbContext.Database.SqlQuery<TEntity>(sql, parameters).ToList(); 
+            return TaolxDbContext.ReadDbContext.Database.SqlQuery<TEntity>(sql, parameters).ToList();
         }
 
         /// <summary>
@@ -56,9 +55,10 @@ namespace Taolx.Common.DataAccess
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public List<TView> SqlQuery<TView>(string sql, params object[] parameters)
+        public List<TView> SqlQuery<TView>(string sql, params object[] parameters) where TView : class
         {
             return TaolxDbContext.ReadDbContext.Database.SqlQuery<TView>(sql, parameters).ToList();
         }
+         
     }
 }
